@@ -1,34 +1,43 @@
 # 🌊 NOAA Twitter Bot 🤖
 
-This bot automatically tweets daily ocean conditions like wave height, water temperature, and wind from NOAA buoy stations. It’s perfect for surfers, sailors, and marine enthusiasts! 🚤🌤
+This bot automatically tweets daily ocean conditions like wave height, water temperature, and wind from NOAA buoy stations — all converted to **imperial units**. Perfect for surfers, sailors, and beach lovers! 🏄‍♂️🚤🌴
 
 ## 🛠 Features
-- Gets latest data from NOAA buoy station (default: Frying Pan Shoals, NC).
-- Posts a daily tweet every morning at 8:00 AM EST.
-- Deployed via GitHub Actions ⏰✅
+- 🌊 Wave height (in feet)
+- 🌡 Water temperature (in Fahrenheit)
+- 💨 Wind speed (in mph) and direction (degrees)
+- 🤖 Automated tweets via GitHub Actions every day at 8:00 AM EST
 
 ## 🔧 Setup
 
-1. Clone this repo.
-2. Add your Twitter API credentials as **GitHub Secrets**:
+1. **Fork or clone** this repo.
+2. **Add your Twitter API credentials** as GitHub Repository Secrets:
    - `TWITTER_API_KEY`
    - `TWITTER_API_SECRET`
    - `TWITTER_ACCESS_TOKEN`
    - `TWITTER_ACCESS_SECRET`
-3. Customize `STATION_ID` in `main.py` if you'd like to change the location.
-4. Push to GitHub – Actions will run every day.
+3. *(Optional)* Change the `STATION_ID` in `main.py` to another NOAA buoy station.
+4. Commit and push. GitHub Actions will handle the rest.
 
 ## 🧪 Example Tweet
 
 ```
 🌊 NOAA Marine Conditions for 2025-06-19 
 📍 Station 41013 
-• Wave Height: 0.6 m
-• Water Temp: 26.1 °C
-• Wind: 4.5 m/s from 180°
+• Wave Height: 2.0 ft
+• Water Temp: 78.8 °F
+• Wind: 10.1 mph from 180°
 #NOAA #Maritime #Weather
 ```
 
-## 📜 License
+## 🧭 Buoy Source
+All data is pulled from NOAA’s National Data Buoy Center: [https://www.ndbc.noaa.gov/](https://www.ndbc.noaa.gov/)
 
-MIT License
+## 🖥 Tech Stack
+- Python 🐍
+- GitHub Actions ⚙️
+- Tweepy (Twitter API) 🐦
+- Requests (for NOAA data) 🌐
+
+## 📜 License
+MIT License — use it, fork it, share it!
