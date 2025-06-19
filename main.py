@@ -31,12 +31,27 @@ def get_noaa_data():
 
     data = dict(zip(headers, latest_data))
 
-    wave_height = data.get('WVHT', 'N/A')  # Wave Height (m)
-    water_temp = data.get('WTMP', 'N/A')   # Water Temperature (°C)
+    wave_height_m = data.get('WVHT', 'N/A')  # Wave Height (m)
+    water_temp_c = data.get('WTMP', 'N/A')   # Water Temperature (°C)
     wind_dir = data.get('WDIR', 'N/A')
-    wind_speed = data.get('WSPD', 'N/A')
+    wind_speed_ms = data.get('WSPD', 'N/A')
 
-    return wave_height, water_temp, wind_dir, wind_speed
+    try:
+        wave_height_ft = round(float(wave_height_m) * 3.28084, 1)
+    except:
+        wave_height_ft = 'N/A'
+
+    try:
+        water_temp_f = round((float(water_temp_c) * 9/5) + 32, 1)
+    except:
+        water_temp_f = 'N/A'
+
+    try:
+        wind_speed_mph = round(float(wind_speed_ms) * 2.23694, 1)
+    except:
+        wind_speed_mph = 'N/A'
+
+    return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
 
 def post_tweet():
     wave_height, water_temp, wind_dir, wind_speed = get_noaa_data()
@@ -45,9 +60,9 @@ def post_tweet():
     tweet = (
         f"🌊 NOAA Marine Conditions for {now} \n"
         f"📍 Station {STATION_ID} \n"
-        f"• Wave Height: {wave_height} m\n"
-        f"• Water Temp: {water_temp} °C\n"
-        f"• Wind: {wind_speed} m/s from {wind_dir}°\n"
+        f"• Wave Height: {wave_height} ft\n"
+        f"• Water Temp: {water_temp} °F\n"
+        f"• Wind: {wind_speed} mph from {wind_dir}°\n"
         f"#NOAA #Maritime #Weather"
     )
 
