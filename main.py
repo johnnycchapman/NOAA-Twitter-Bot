@@ -1,4 +1,3 @@
-# Replace this code with Twitter API v2 support
 import os
 import requests
 import tweepy
