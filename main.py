@@ -1,61 +1,49 @@
 import os
 import requests
-import tweepy
+from requests_oauthlib import OAuth1Session
 from datetime import datetime
 
-# NOAA Station ID and API URL
-STATION_ID = "41013"  # Frying Pan Shoals, NC
+# NOAA Station
+STATION_ID = "41013"
 NOAA_URL = f"https://www.ndbc.noaa.gov/data/realtime2/{STATION_ID}.txt"
 
-# Twitter API keys from GitHub Actions Secrets
-TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
-TWITTER_API_KEY = os.getenv("TWITTER_API_KEY")
-TWITTER_API_SECRET = os.getenv("TWITTER_API_SECRET")
-TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-TWITTER_ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
-
-# Setup Twitter v2 client
-twitter_client = tweepy.Client(
-    bearer_token=TWITTER_BEARER_TOKEN,
-    consumer_key=TWITTER_API_KEY,
-    consumer_secret=TWITTER_API_SECRET,
-    access_token=TWITTER_ACCESS_TOKEN,
-    access_token_secret=TWITTER_ACCESS_SECRET
-)
+# Twitter OAuth1 credentials
+CONSUMER_KEY = os.getenv("CONSUMER_KEY")
+CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+ACCESS_SECRET = os.getenv("ACCESS_SECRET")
 
 def get_noaa_data():
     response = requests.get(NOAA_URL)
     response.raise_for_status()
     lines = response.text.splitlines()
     headers = lines[0].split()
-    latest_data = lines[2].split()
 
-    data = dict(zip(headers, latest_data))
-
-    wave_height_m = data.get('WVHT', 'N/A')
-    water_temp_c = data.get('WTMP', 'N/A')
-    wind_dir = data.get('WDIR', 'N/A')
-    wind_speed_ms = data.get('WSPD', 'N/A')
-
-    try:
-        wave_height_ft = round(float(wave_height_m) * 3.28084, 1)
-    except:
-        wave_height_ft = 'N/A'
-
-    try:
-        water_temp_f = round((float(water_temp_c) * 9/5) + 32, 1)
-    except:
-        water_temp_f = 'N/A'
-
-    try:
-        wind_speed_mph = round(float(wind_speed_ms) * 2.23694, 1)
-    except:
-        wind_speed_mph = 'N/A'
-
-    return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
+    for line in lines[2:]:
+        values = line.split()
+        if len(values) != len(headers):
+            continue
+        data = dict(zip(headers, values))
+        if all(data.get(k, 'MM') != 'MM' for k in ['WVHT', 'WTMP', 'WDIR', 'WSPD']):
+            try:
+                wave_height_ft = round(float(data['WVHT']) * 3.28084, 1)
+                water_temp_f = round(float(data['WTMP']) * 9 / 5 + 32, 1)
+                wind_speed_mph = round(float(data['WSPD']) * 2.23694, 1)
+                wind_dir = data['WDIR']
+                return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
+            except Exception as e:
+                print("Error parsing data:", e)
+                return None
+    print("No complete NOAA data available.")
+    return None
 
 def post_tweet():
-    wave_height, water_temp, wind_dir, wind_speed = get_noaa_data()
+    data = get_noaa_data()
+    if not data:
+        print("Failed to retrieve or parse NOAA data.")
+        return
+
+    wave_height, water_temp, wind_dir, wind_speed = data
     now = datetime.now().strftime('%Y-%m-%d')
 
     tweet = (
@@ -67,7 +55,22 @@ def post_tweet():
         f"#NOAA #Maritime #Weather"
     )
 
-    twitter_client.create_tweet(text=tweet)
+    oauth = OAuth1Session(
+        CONSUMER_KEY,
+        client_secret=CONSUMER_SECRET,
+        resource_owner_key=ACCESS_TOKEN,
+        resource_owner_secret=ACCESS_SECRET
+    )
+
+    response = oauth.post(
+        "https://api.twitter.com/2/tweets",
+        json={"text": tweet}
+    )
+
+    if response.status_code != 201:
+        raise Exception(f"Tweet failed: {response.status_code} {response.text}")
+
+    print("Tweet posted successfully!", response.json())
 
 if __name__ == "__main__":
     post_tweet()
