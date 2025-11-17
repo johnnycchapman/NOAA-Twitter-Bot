@@ -1,6 +1,6 @@
 # 🌊 NOAA Twitter Bot 🤖
 
-This bot automatically tweets daily ocean conditions like wave height, water temperature, and wind from NOAA buoy stations — all converted to **imperial units**. Perfect for surfers, sailors, and beach lovers! 🏄‍♂️🚤🌴
+This bot automatically tweets daily ocean conditions like wave height, water temperature, wind, and high and low tides from NOAA buoy stations — all converted to **imperial units**. Perfect for surfers, sailors, and beach lovers! 🏄‍♂️🚤🌴
 
 ## 🛠 Features
 - 🌊 Wave height (in feet)
