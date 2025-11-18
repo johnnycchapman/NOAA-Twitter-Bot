@@ -22,7 +22,7 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
 ## 🧪 Example Tweet
 
 ```
-  🌊 NOAA Marine Conditions for 11/17/2025
+  🌊 NOAA Conditions for 11/17/2025
   📍 Station: 41013
   🌊 Wave Height: 2.0 ft
   🌡️  Water Temp: 78.8 °F
