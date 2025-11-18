@@ -99,7 +99,7 @@ def post_tweet():
 
     tweet = (
         f"🌊 NOAA Marine Conditions for {now}\n"
-        f"📍 Station {STATION_ID}\n"
+        f"📍 Station: {STATION_ID}\n"
         f"🌊 Wave Height: {wave_height} ft\n"
         f"🌡️ Water Temp: {water_temp} °F\n"
         f"💨 Wind: {wind_speed} mph from {wind_dir}°\n"
