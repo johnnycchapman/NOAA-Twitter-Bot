@@ -11,11 +11,26 @@ NOAA_URL = f"https://www.ndbc.noaa.gov/data/realtime2/{STATION_ID}.txt"
 # Station 8658163 - Wrightsville Beach, NC
 TIDE_STATION_ID = "8658163"
 
+# Coordinates for buoy 41013 (for sunset calculation)
+LATITUDE = 33.436
+LONGITUDE = -77.743
+
 # Twitter OAuth1 credentials
 CONSUMER_KEY = os.getenv("TWITTER_API_KEY")
 CONSUMER_SECRET = os.getenv("TWITTER_API_SECRET")
 ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
 ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+
+def degrees_to_cardinal(degrees):
+    """Convert wind direction in degrees to cardinal direction"""
+    try:
+        degrees = float(degrees)
+        directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+                     'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+        index = round(degrees / 22.5) % 16
+        return directions[index]
+    except:
+        return str(degrees)
 
 def get_noaa_data():
     response = requests.get(NOAA_URL)
@@ -33,7 +48,7 @@ def get_noaa_data():
                 wave_height_ft = round(float(data['WVHT']) * 3.28084, 1)
                 water_temp_f = round(float(data['WTMP']) * 9 / 5 + 32, 1)
                 wind_speed_mph = round(float(data['WSPD']) * 2.23694, 1)
-                wind_dir = data['WDIR']
+                wind_dir = degrees_to_cardinal(data['WDIR'])
                 return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
             except Exception as e:
                 print("Error parsing data:", e)
@@ -87,6 +102,35 @@ def get_tide_data():
         print(f"Error fetching tide data: {e}")
         return None, None
 
+def get_sunset_time():
+    """Fetch today's sunset time using sunrise-sunset.org API"""
+    try:
+        url = "https://api.sunrise-sunset.org/json"
+        params = {
+            'lat': LATITUDE,
+            'lng': LONGITUDE,
+            'formatted': 0
+        }
+
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if data['status'] != 'OK':
+            return None
+
+        # Parse UTC time and convert to local time
+        sunset_utc = datetime.strptime(data['results']['sunset'], '%Y-%m-%dT%H:%M:%S%z')
+        # Convert to Eastern Time (buoy location is in ET zone)
+        from datetime import timezone, timedelta
+        eastern = timezone(timedelta(hours=-5))  # EST offset
+        sunset_local = sunset_utc.astimezone(eastern)
+
+        return sunset_local.strftime('%-I:%M%p').lower()
+    except Exception as e:
+        print(f"Error fetching sunset data: {e}")
+        return None
+
 def post_tweet():
     data = get_noaa_data()
     if not data:
@@ -95,20 +139,23 @@ def post_tweet():
 
     wave_height, water_temp, wind_dir, wind_speed = data
     high_tide, low_tide = get_tide_data()
+    sunset = get_sunset_time()
     now = datetime.now().strftime('%-m/%-d/%Y')
 
     tweet = (
         f"🌊 NOAA Marine Conditions for {now}\n"
         f"📍 Station: {STATION_ID}\n"
         f"🌊 Wave Height: {wave_height} ft\n"
-        f"🌡️ Water Temp: {water_temp} °F\n"
-        f"💨 Wind: {wind_speed} mph from {wind_dir}°\n"
+        f"🌡️  Water Temp: {water_temp} °F\n"
+        f"💨 Wind: {wind_speed} mph from {wind_dir}\n"
     )
 
-    if high_tide:
-        tweet += f"⬆️ High Tide: {high_tide}\n"
     if low_tide:
-        tweet += f"⬇️ Low Tide: {low_tide}\n"
+        tweet += f"⬇️  Low Tide: {low_tide}\n"
+    if high_tide:
+        tweet += f"⬆️  High Tide: {high_tide}\n"
+    if sunset:
+        tweet += f"🌅 Sunset: {sunset}\n"
 
     tweet += "#NOAA #Maritime #Weather"
 
