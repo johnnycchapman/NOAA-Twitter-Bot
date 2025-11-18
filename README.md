@@ -30,6 +30,7 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
   ⬇️  Low Tide: 8:12am
   ⬆️  High Tide: 6:01pm
   🌅 Sunset: 5:23pm
+#NOAA #WrightsvilleBeachNC
 ```
 
 ## 🧭 Buoy Source
