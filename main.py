@@ -143,17 +143,17 @@ def post_tweet():
     now = datetime.now().strftime('%-m/%-d/%Y')
 
     tweet = (
-        f"🌊 NOAA Marine Conditions for {now}\n"
+        f"🌊 NOAA Conditions for {now}\n"
         f"📍 Station: {STATION_ID}\n"
         f"🌊 Wave Height: {wave_height} ft\n"
-        f"🌡️  Water Temp: {water_temp} °F\n"
+        f"🌡️ Water Temp: {water_temp} °F\n"
         f"💨 Wind: {wind_speed} mph from {wind_dir}\n"
     )
 
     if low_tide:
-        tweet += f"⬇️  Low Tide: {low_tide}\n"
+        tweet += f"⬇️ Low Tide: {low_tide}\n"
     if high_tide:
-        tweet += f"⬆️  High Tide: {high_tide}\n"
+        tweet += f"⬆️ High Tide: {high_tide}\n"
     if sunset:
         tweet += f"🌅 Sunset: {sunset}\n"
 
