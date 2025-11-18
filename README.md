@@ -22,13 +22,14 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
 ## 🧪 Example Tweet
 
 ```
- NOAA Marine Conditions for 6/29/2025
-📍 Station 41013 
-🌊 Wave Height: 2.0 ft
-🌡️ Water Temp: 78.8 °F
-💨 Wind: 10.1 mph from 180°
-⬆️ High Tide: 6:01pm
-⬇️ Low Tide: 8:12am
+  🌊 NOAA Marine Conditions for 11/17/2025
+  📍 Station: 41013
+  🌊 Wave Height: 2.0 ft
+  🌡️  Water Temp: 78.8 °F
+  💨 Wind: 10.1 mph from S
+  ⬇️  Low Tide: 8:12am
+  ⬆️  High Tide: 6:01pm
+  🌅 Sunset: 5:23pm
 ```
 
 ## 🧭 Buoy Source
