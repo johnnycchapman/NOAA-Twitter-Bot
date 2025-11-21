@@ -163,7 +163,7 @@ def post_tweet():
     if sunset:
         tweet += f"🌅 Sunset: {sunset}\n"
 
-    tweet += "#NOAA #Maritime #Weather"
+    tweet += "#NOAA #WrightsvilleBeachNC"
 
     oauth = OAuth1Session(
         CONSUMER_KEY,
