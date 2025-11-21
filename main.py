@@ -79,10 +79,10 @@ def get_tide_data():
         data = response.json()
 
         if 'predictions' not in data:
-            return None, None
+            return [], []
 
-        high_tide = None
-        low_tide = None
+        high_tides = []
+        low_tides = []
 
         for prediction in data['predictions']:
             time_str = prediction['t']
@@ -92,15 +92,15 @@ def get_tide_data():
             tide_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M')
             formatted_time = tide_time.strftime('%-I:%M%p').lower()
 
-            if tide_type == 'H' and not high_tide:
-                high_tide = formatted_time
-            elif tide_type == 'L' and not low_tide:
-                low_tide = formatted_time
+            if tide_type == 'H':
+                high_tides.append(formatted_time)
+            elif tide_type == 'L':
+                low_tides.append(formatted_time)
 
-        return high_tide, low_tide
+        return high_tides, low_tides
     except Exception as e:
         print(f"Error fetching tide data: {e}")
-        return None, None
+        return [], []
 
 def get_sunset_time():
     """Fetch today's sunset time using sunrise-sunset.org API"""
@@ -138,26 +138,32 @@ def post_tweet():
         return
 
     wave_height, water_temp, wind_dir, wind_speed = data
-    high_tide, low_tide = get_tide_data()
+    high_tides, low_tides = get_tide_data()
     sunset = get_sunset_time()
     now = datetime.now().strftime('%-m/%-d/%Y')
 
     tweet = (
-        f"NOAA Conditions for {now}\n"
+        f"🌊 NOAA Marine Conditions for {now}\n"
         f"📍 Station: {STATION_ID}\n"
         f"🌊 Wave Height: {wave_height} ft\n"
-        f"🌡️ Water Temp: {water_temp} °F\n"
+        f"🌡️  Water Temp: {water_temp} °F\n"
         f"💨 Wind: {wind_speed} mph from {wind_dir}\n"
     )
 
-    if low_tide:
-        tweet += f"⬇️ Low Tide: {low_tide}\n"
-    if high_tide:
-        tweet += f"⬆️ High Tide: {high_tide}\n"
+    if low_tides:
+        if len(low_tides) == 1:
+            tweet += f"⬇️  Low Tide: {low_tides[0]}\n"
+        else:
+            tweet += f"⬇️  Low Tides: {', '.join(low_tides)}\n"
+    if high_tides:
+        if len(high_tides) == 1:
+            tweet += f"⬆️  High Tide: {high_tides[0]}\n"
+        else:
+            tweet += f"⬆️  High Tides: {', '.join(high_tides)}\n"
     if sunset:
         tweet += f"🌅 Sunset: {sunset}\n"
 
-    tweet += "#NOAA #WrightsvilleBeachNC"
+    tweet += "#NOAA #Maritime #Weather"
 
     oauth = OAuth1Session(
         CONSUMER_KEY,
