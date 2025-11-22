@@ -22,14 +22,14 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
 ## 🧪 Example Tweet
 
 ```
-NOAA Conditions for 11/17/2025
+NOAA Conditions for 11/21/2025
 📍 Station: 41013
-🌊 Wave Height: 2.0 ft
-🌡️  Water Temp: 78.8 °F
-💨 Wind: 10.1 mph from S
-⬇️  Low Tide: 8:12am
-⬆️  High Tide: 6:01pm
-🌅 Sunset: 5:23pm
+🌊 Wave Height: 3.5 ft
+🌡️  Water Temp: 68.2 °F
+💨 Wind: 12.3 mph from SE
+⬇️  Low Tides: 3:45am, 4:12pm
+⬆️  High Tides: 9:23am, 9:47pm
+🌅 Sunset: 5:34pm
 #NOAA #WrightsvilleBeachNC
 ```
 
