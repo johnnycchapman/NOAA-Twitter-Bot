@@ -143,7 +143,7 @@ def post_tweet():
     now = datetime.now().strftime('%-m/%-d/%Y')
 
     tweet = (
-        f"🌊 NOAA Marine Conditions for {now}\n"
+        f"NOAA Conditions for {now}\n"
         f"📍 Station: {STATION_ID}\n"
         f"🌊 Wave Height: {wave_height} ft\n"
         f"🌡️  Water Temp: {water_temp} °F\n"
