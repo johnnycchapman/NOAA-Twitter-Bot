@@ -2,18 +2,21 @@ name: NOAA Twitter Bot
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # 8:00 AM EST (adjusted to 12:00 UTC)
+    - cron: '0 12 * * *'  # 8:00 AM EST / 7:00 AM EDT (12:00 UTC)
   workflow_dispatch:
+
+permissions:
+  contents: write  # needed to commit the activity log
 
 jobs:
   tweet-noaa-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -26,4 +29,21 @@ jobs:
           TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
           TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
-        run: python main.py
+        run: python main.py | tee run-output.txt
+
+      - name: Append run to activity log
+        run: |
+          mkdir -p data
+          {
+            echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) - run completed"
+            tail -n 20 run-output.txt
+            echo "---"
+          } >> data/run-log.txt
+
+      - name: Commit log update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/run-log.txt
+          git diff --staged --quiet || git commit -m "Log: NOAA bot run $(date -u +%Y-%m-%d)"
+          git push
