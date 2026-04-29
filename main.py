@@ -134,8 +134,7 @@ def get_sunset_time():
 def post_tweet():
     data = get_noaa_data()
     if not data:
-        print("Failed to retrieve or parse NOAA data.")
-        return
+        raise Exception("Failed to retrieve or parse NOAA data — buoy returned no complete observations.")
 
     wave_height, water_temp, wind_dir, wind_speed = data
     high_tides, low_tides = get_tide_data()
