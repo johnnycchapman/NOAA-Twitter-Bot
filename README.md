@@ -14,8 +14,8 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
 2. **Add your Twitter API credentials** as GitHub Repository Secrets:
    - `CONSUMER_KEY`
    - `CONSUMER_SECRET`
-   - `TWITTER_ACCESS_TOKEN`
-   - `TWITTER_ACCESS_SECRET`
+   - `ACCESS_TOKEN`
+   - `ACCESS_TOKEN_SECRET`
 3. *(Optional)* Change the `STATION_ID` in `main.py` to another NOAA buoy station.
 4. Commit and push. GitHub Actions will handle the rest.
 
