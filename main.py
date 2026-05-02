@@ -172,7 +172,7 @@ def post_tweet():
     )
 
     response = oauth.post(
-        "https://api.twitter.com/2/tweets",
+        "https://api.x.com/2/tweets",
         json={"text": tweet}
     )
 
