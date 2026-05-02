@@ -18,8 +18,8 @@ LONGITUDE = -77.743
 # Twitter OAuth1 credentials
 CONSUMER_KEY = os.getenv("CONSUMER_KEY")
 CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
-ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
 
 def degrees_to_cardinal(degrees):
     """Convert wind direction in degrees to cardinal direction"""
@@ -168,7 +168,7 @@ def post_tweet():
         CONSUMER_KEY,
         client_secret=CONSUMER_SECRET,
         resource_owner_key=ACCESS_TOKEN,
-        resource_owner_secret=ACCESS_SECRET
+        resource_owner_secret=ACCESS_TOKEN_SECRET
     )
 
     response = oauth.post(
