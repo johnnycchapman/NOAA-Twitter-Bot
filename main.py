@@ -2,6 +2,7 @@ import os
 import requests
 from requests_oauthlib import OAuth1Session
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # NOAA Buoy Station
 STATION_ID = "41013"
@@ -119,12 +120,11 @@ def get_sunset_time():
         if data['status'] != 'OK':
             return None
 
-        # Parse UTC time and convert to local time
+        # Parse UTC time and convert to Eastern Time (handles EST/EDT automatically)
         sunset_utc = datetime.strptime(data['results']['sunset'], '%Y-%m-%dT%H:%M:%S%z')
-        # Convert to Eastern Time (buoy location is in ET zone)
-        from datetime import timezone, timedelta
-        eastern = timezone(timedelta(hours=-5))  # EST offset
-        sunset_local = sunset_utc.astimezone(eastern)
+        sunset_local = sunset_utc.astimezone(ZoneInfo("America/New_York"))
+
+        return sunset_local.strftime('%-I:%M%p').lower()
 
         return sunset_local.strftime('%-I:%M%p').lower()
     except Exception as e:
@@ -139,7 +139,7 @@ def post_tweet():
     wave_height, water_temp, wind_dir, wind_speed = data
     high_tides, low_tides = get_tide_data()
     sunset = get_sunset_time()
-    now = datetime.now().strftime('%-m/%-d/%Y')
+    now = datetime.now(ZoneInfo("America/New_York")).strftime('%-m/%-d/%Y')
 
     tweet = (
         f"NOAA Conditions for {now}\n"
