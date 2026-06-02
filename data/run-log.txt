@@ -114,3 +114,6 @@ Tweet posted successfully! {'data': {'text': 'NOAA Conditions for 5/31/2026\n�
 2026-06-01T17:07:42Z - run completed
 Tweet posted successfully! {'data': {'id': '2061494913594695859', 'edit_history_tweet_ids': ['2061494913594695859'], 'text': 'NOAA Conditions for 6/1/2026\n📍 Station: 41013\n🌊 Wave Height: 5.6 ft\n🌡️  Water Temp: 77.2 °F\n💨 Wind: 11.2 mph from SSE\n⬇️  Low Tides: 2:58am, 2:43pm\n⬆️  High Tides: 8:41am, 9:07pm\n🌅 Sunset: 8:17pm\n#NOAA #WrightsvilleBeach #Wilmington'}}
 ---
+2026-06-02T15:49:03Z - run completed
+Tweet posted successfully! {'data': {'id': '2061837507197653490', 'text': 'NOAA Conditions for 6/2/2026\n📍 Station: 41013\n🌊 Wave Height: 7.2 ft\n🌡️  Water Temp: 76.8 °F\n💨 Wind: 24.6 mph from NNE\n⬇️  Low Tides: 3:33am, 3:17pm\n⬆️  High Tides: 9:21am, 9:47pm\n🌅 Sunset: 8:17pm\n#NOAA #WrightsvilleBeach #Wilmington', 'edit_history_tweet_ids': ['2061837507197653490']}}
+---
