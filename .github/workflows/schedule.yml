@@ -2,14 +2,39 @@ name: NOAA Twitter Bot
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # 8:00 AM EST / 7:00 AM EDT (12:00 UTC)
+    - cron: '7 11 * * *'   # 07:00 EDT (summer, UTC-4)
+    - cron: '7 12 * * *'   # 07:00 EST (winter, UTC-5)
   workflow_dispatch:
 
 permissions:
   contents: write  # needed to commit the activity log
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - name: Decide whether this trigger maps to 7 AM Eastern
+        id: check
+        run: |
+          offset=$(TZ=America/New_York date +%z)   # -0400 in EDT, -0500 in EST
+          schedule="${{ github.event.schedule }}"  # empty for manual runs
+          run=yes
+          if [ -n "$schedule" ]; then
+            run=no
+            if [ "$offset" = "-0400" ] && [ "$schedule" = "7 11 * * *" ]; then
+              run=yes
+            fi
+            if [ "$offset" = "-0500" ] && [ "$schedule" = "7 12 * * *" ]; then
+              run=yes
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
   tweet-noaa-data:
+    needs: gate
+    if: needs.gate.outputs.run == 'yes'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
