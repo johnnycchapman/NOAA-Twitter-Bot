@@ -18,17 +18,29 @@ jobs:
       - name: Decide whether this trigger maps to 7 AM Eastern
         id: check
         run: |
-          offset=$(TZ=America/New_York date +%z)   # -0400 in EDT, -0500 in EST
-          schedule="${{ github.event.schedule }}"  # empty for manual runs
-          run=yes
-          if [ -n "$schedule" ]; then
-            run=no
-            if [ "$offset" = "-0400" ] && [ "$schedule" = "7 11 * * *" ]; then
-              run=yes
-            fi
-            if [ "$offset" = "-0500" ] && [ "$schedule" = "7 12 * * *" ]; then
-              run=yes
-            fi
+          # Both crons fire every day. This gate lets through exactly the one
+          # that corresponds to 7 AM Eastern today, and skips the other.
+          #
+          # It keys off the SCHEDULED cron hour (not the wall clock), so a
+          # GitHub-delayed run that executes after the hour boundary is still
+          # judged correctly. And it only reads the hour field out of the cron
+          # string, so it can't silently fail-closed if the full cron literal
+          # ever drifts.
+          #
+          #   7 AM EDT (offset -0400) == 11:00 UTC  -> cron hour 11
+          #   7 AM EST (offset -0500) == 12:00 UTC  -> cron hour 12
+          schedule="${{ github.event.schedule }}"   # empty for manual runs
+          if [ -z "$schedule" ]; then
+            run=yes
+          else
+            cron_hour=$(echo "$schedule" | awk '{print $2}')
+            offset=$(TZ=America/New_York date +%z)
+            case "$offset" in
+              -0400) want=11 ;;
+              -0500) want=12 ;;
+              *)     want="" ;;
+            esac
+            if [ "$cron_hour" = "$want" ]; then run=yes; else run=no; fi
           fi
           echo "run=$run" >> "$GITHUB_OUTPUT"
 
