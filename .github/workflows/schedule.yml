@@ -2,8 +2,13 @@ name: NOAA Twitter Bot
 
 on:
   schedule:
-    - cron: '7 11 * * *'   # 07:00 EDT (summer, UTC-4)
-    - cron: '7 12 * * *'   # 07:00 EST (winter, UTC-5)
+    # Both crons fire ~13 min early (06:47 ET) on an off-peak minute to absorb
+    # GitHub's best-effort scheduling delay (it fires late, never early, and is
+    # worst at the top of the hour). The gate below kills the wrong one for the
+    # current DST state, and the "Wait until 07:00 Eastern" step sleeps until the
+    # exact target time before posting.
+    - cron: '47 10 * * *'   # 06:47 EDT (summer, UTC-4) -> 10:47 UTC
+    - cron: '47 11 * * *'   # 06:47 EST (winter, UTC-5) -> 11:47 UTC
   workflow_dispatch:
 
 permissions:
@@ -27,8 +32,8 @@ jobs:
           # string, so it can't silently fail-closed if the full cron literal
           # ever drifts.
           #
-          #   7 AM EDT (offset -0400) == 11:00 UTC  -> cron hour 11
-          #   7 AM EST (offset -0500) == 12:00 UTC  -> cron hour 12
+          #   7 AM EDT (offset -0400): 06:47 ET == 10:47 UTC -> cron hour 10
+          #   7 AM EST (offset -0500): 06:47 ET == 11:47 UTC -> cron hour 11
           schedule="${{ github.event.schedule }}"   # empty for manual runs
           if [ -z "$schedule" ]; then
             run=yes
@@ -36,8 +41,8 @@ jobs:
             cron_hour=$(echo "$schedule" | awk '{print $2}')
             offset=$(TZ=America/New_York date +%z)
             case "$offset" in
-              -0400) want=11 ;;
-              -0500) want=12 ;;
+              -0400) want=10 ;;
+              -0500) want=11 ;;
               *)     want="" ;;
             esac
             if [ "$cron_hour" = "$want" ]; then run=yes; else run=no; fi
@@ -59,6 +64,24 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests requests-oauthlib
+
+      - name: Wait until 07:00 Eastern
+        # Scheduled runs fire ~13 min early, then sleep to the exact target so
+        # the post lands within a few seconds of 07:00:00 ET. ZoneInfo keeps the
+        # target DST-correct. Manual (workflow_dispatch) runs skip the wait and
+        # post immediately. If GitHub is delayed past 07:00, now >= target and
+        # the sleep is a no-op (posts as soon as the runner picks it up).
+        if: github.event_name == 'schedule'
+        run: |
+          python3 - <<'PY'
+          import time
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          now = datetime.now(ZoneInfo("America/New_York"))
+          target = now.replace(hour=7, minute=0, second=0, microsecond=0)
+          if now < target:
+              time.sleep((target - now).total_seconds())
+          PY
 
       - name: Run NOAA Twitter bot
         env:
