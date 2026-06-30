@@ -31,6 +31,7 @@ jobs:
           CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+          STORMGLASS_API_KEY: ${{ secrets.STORMGLASS_API_KEY }}
         run: python main.py | tee run-output.txt
 
       - name: Append run to activity log
