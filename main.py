@@ -12,11 +12,7 @@ NOAA_URL = f"https://www.ndbc.noaa.gov/data/realtime2/{STATION_ID}.txt"
 # Station 8658163 - Wrightsville Beach, NC
 TIDE_STATION_ID = "8658163"
 
-# Coordinates for buoy 41013 (for sunset calculation)
-LATITUDE = 33.436
-LONGITUDE = -77.743
-
-# Surf spot coordinates for Stormglass wave height (Wrightsville Beach, NC)
+# Surf spot coordinates for Stormglass wave height + sunset (Wrightsville Beach, NC)
 SURF_LATITUDE = 34.192607
 SURF_LONGITUDE = -77.803778
 
@@ -161,8 +157,8 @@ def get_sunset_time():
     try:
         url = "https://api.sunrise-sunset.org/json"
         params = {
-            'lat': LATITUDE,
-            'lng': LONGITUDE,
+            'lat': SURF_LATITUDE,
+            'lng': SURF_LONGITUDE,
             'formatted': 0
         }
 
