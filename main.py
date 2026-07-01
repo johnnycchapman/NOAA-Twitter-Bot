@@ -44,15 +44,15 @@ def get_noaa_data():
         if len(values) != len(headers):
             continue
         data = dict(zip(headers, values))
-        if all(data.get(k, 'MM') != 'MM' for k in ['WTMP', 'WDIR', 'WSPD']):
+        # Require WVHT too: the newest rows often still show 'MM' for wave fields
+        # (waves are transmitted separately from wind/temp), so this lands on the
+        # most recent row that actually carries a wave measurement.
+        if all(data.get(k, 'MM') != 'MM' for k in ['WVHT', 'WTMP', 'WDIR', 'WSPD']):
             try:
+                wave_height_ft = round(float(data['WVHT']) * 3.28084, 1)
                 water_temp_f = round(float(data['WTMP']) * 9 / 5 + 32, 1)
                 wind_speed_mph = round(float(data['WSPD']) * 2.23694, 1)
                 wind_dir = degrees_to_cardinal(data['WDIR'])
-                # Wave height straight from the buoy (meters -> feet); omit if buoy reports MM
-                wave_height_ft = None
-                if data.get('WVHT', 'MM') != 'MM':
-                    wave_height_ft = round(float(data['WVHT']) * 3.28084, 1)
                 return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
             except Exception as e:
                 print("Error parsing data:", e)
