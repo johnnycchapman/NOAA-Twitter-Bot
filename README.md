@@ -6,7 +6,7 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
 - 🌊 Wave height (in feet) — sourced from the **Stormglass Weather API** at the surf spot (Wrightsville Beach: `34.192607, -77.803778`), converted from meters
 - 🌡 Water temperature (in Fahrenheit)
 - 💨 Wind speed (in mph) and direction (degrees)
-- 🤖 Automated tweets via GitHub Actions every day at 8:00 AM EST
+- 🤖 Automated tweets every day at 7:00 AM Eastern
 
 ## 🔧 Setup
 
@@ -19,6 +19,12 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
    - `STORMGLASS_API_KEY` — your [Stormglass.io](https://stormglass.io/) API key (free tier available), used for wave height
 3. *(Optional)* Change the `STATION_ID` in `main.py` to another NOAA buoy station.
 4. Commit and push. GitHub Actions will handle the rest.
+
+## ⏰ How it works
+
+The bot runs **every day at 7:00 AM Eastern**, scheduled externally by [cron-job.org](https://cron-job.org/). Because cron-job.org is timezone-aware (`America/New_York`), the 7:00 AM run holds year-round through both EST and EDT — no DST handling needed inside the repo.
+
+At the scheduled time, cron-job.org sends an authenticated POST to GitHub's workflow-dispatch REST API, which triggers the `schedule.yml` workflow on the `main` branch. GitHub Actions then checks out the repo, installs dependencies, and runs `main.py` to gather the data and post the tweet.
 
 ## 🧪 Example Tweet
 
