@@ -1,7 +1,7 @@
 import os
 import requests
 from requests_oauthlib import OAuth1Session
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 # NOAA Buoy Station
@@ -16,11 +16,18 @@ TIDE_STATION_ID = "8658163"
 LATITUDE = 33.436
 LONGITUDE = -77.743
 
+# Surf spot coordinates for Stormglass wave height (Wrightsville Beach, NC)
+SURF_LATITUDE = 34.192607
+SURF_LONGITUDE = -77.803778
+
 # Twitter OAuth1 credentials
 CONSUMER_KEY = os.getenv("CONSUMER_KEY")
 CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
+
+# Stormglass API credential
+STORMGLASS_API_KEY = os.getenv("STORMGLASS_API_KEY")
 
 def degrees_to_cardinal(degrees):
     """Convert wind direction in degrees to cardinal direction"""
@@ -33,6 +40,53 @@ def degrees_to_cardinal(degrees):
     except:
         return str(degrees)
 
+def get_wave_height():
+    """Fetch current significant wave height from Stormglass (meters) and convert to feet."""
+    try:
+        if not STORMGLASS_API_KEY:
+            print("Stormglass API key not set.")
+            return None
+
+        now = int(datetime.now(timezone.utc).timestamp())
+        response = requests.get(
+            "https://api.stormglass.io/v2/weather/point",
+            params={
+                'lat': SURF_LATITUDE,
+                'lng': SURF_LONGITUDE,
+                'params': 'waveHeight',
+                'source': 'sg',
+                'start': now,
+                'end': now,
+            },
+            headers={'Authorization': STORMGLASS_API_KEY}
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        hours = data.get('hours', [])
+        if not hours:
+            print("No Stormglass wave data available.")
+            return None
+
+        # Each parameter is a list of {"source": ..., "value": ...} entries.
+        wave_entries = hours[0].get('waveHeight', [])
+        wave_height_m = None
+        for entry in wave_entries:
+            if entry.get('source') == 'sg':
+                wave_height_m = entry.get('value')
+                break
+        if wave_height_m is None and wave_entries:
+            wave_height_m = wave_entries[0].get('value')
+        if wave_height_m is None:
+            print("No wave height value in Stormglass response.")
+            return None
+
+        # Convert meters to feet
+        return round(float(wave_height_m) * 3.28084, 1)
+    except Exception as e:
+        print(f"Error fetching Stormglass wave data: {e}")
+        return None
+
 def get_noaa_data():
     response = requests.get(NOAA_URL)
     response.raise_for_status()
@@ -44,13 +98,12 @@ def get_noaa_data():
         if len(values) != len(headers):
             continue
         data = dict(zip(headers, values))
-        if all(data.get(k, 'MM') != 'MM' for k in ['WVHT', 'WTMP', 'WDIR', 'WSPD']):
+        if all(data.get(k, 'MM') != 'MM' for k in ['WTMP', 'WDIR', 'WSPD']):
             try:
-                wave_height_ft = round(float(data['WVHT']) * 3.28084, 1)
                 water_temp_f = round(float(data['WTMP']) * 9 / 5 + 32, 1)
                 wind_speed_mph = round(float(data['WSPD']) * 2.23694, 1)
                 wind_dir = degrees_to_cardinal(data['WDIR'])
-                return wave_height_ft, water_temp_f, wind_dir, wind_speed_mph
+                return water_temp_f, wind_dir, wind_speed_mph
             except Exception as e:
                 print("Error parsing data:", e)
                 return None
@@ -125,8 +178,6 @@ def get_sunset_time():
         sunset_local = sunset_utc.astimezone(ZoneInfo("America/New_York"))
 
         return sunset_local.strftime('%-I:%M%p').lower()
-
-        return sunset_local.strftime('%-I:%M%p').lower()
     except Exception as e:
         print(f"Error fetching sunset data: {e}")
         return None
@@ -136,7 +187,8 @@ def post_tweet():
     if not data:
         raise Exception("Failed to retrieve or parse NOAA data — buoy returned no complete observations.")
 
-    wave_height, water_temp, wind_dir, wind_speed = data
+    water_temp, wind_dir, wind_speed = data
+    wave_height = get_wave_height()
     high_tides, low_tides = get_tide_data()
     sunset = get_sunset_time()
     now = datetime.now(ZoneInfo("America/New_York")).strftime('%-m/%-d/%Y')
@@ -144,7 +196,12 @@ def post_tweet():
     tweet = (
         f"NOAA Conditions for {now}\n"
         f"📍 Station: {STATION_ID}\n"
-        f"🌊 Wave Height: {wave_height} ft\n"
+    )
+
+    if wave_height is not None:
+        tweet += f"🌊 Wave Height: {wave_height} ft\n"
+
+    tweet += (
         f"🌡️  Water Temp: {water_temp} °F\n"
         f"💨 Wind: {wind_speed} mph from {wind_dir}\n"
     )
