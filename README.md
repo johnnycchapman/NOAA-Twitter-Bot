@@ -3,7 +3,7 @@
 This bot automatically tweets daily ocean conditions like wave height, water temperature, wind, and high and low tides from NOAA buoy stations — all converted to **imperial units**. Perfect for surfers, sailors, and beach lovers! 🏄‍♂️🚤🌴
 
 ## 🛠 Features
-- 🌊 Wave height (in feet) — sourced from the **Stormglass Weather API** at the surf spot (Wrightsville Beach: `34.192607, -77.803778`), converted from meters
+- 🌊 Wave height (in feet) — from the NOAA buoy observation, converted from meters
 - 🌡 Water temperature (in Fahrenheit)
 - 💨 Wind speed (in mph) and direction (degrees)
 - 🤖 Automated tweets every day at 7:00 AM Eastern
@@ -16,7 +16,6 @@ This bot automatically tweets daily ocean conditions like wave height, water tem
    - `CONSUMER_SECRET`
    - `ACCESS_TOKEN`
    - `ACCESS_TOKEN_SECRET`
-   - `STORMGLASS_API_KEY` — your [Stormglass.io](https://stormglass.io/) API key (free tier available), used for wave height
 3. *(Optional)* Change the `STATION_ID` in `main.py` to another NOAA buoy station.
 4. Commit and push. GitHub Actions will handle the rest.
 
@@ -41,8 +40,7 @@ NOAA Conditions for 11/21/2025
 ```
 
 ## 🧭 Data Sources
-- Water temp, wind, and buoy metadata from NOAA’s National Data Buoy Center: [https://www.ndbc.noaa.gov/](https://www.ndbc.noaa.gov/)
-- Wave height from the Stormglass Weather API: [https://stormglass.io/](https://stormglass.io/)
+- Wave height, water temp, wind, and buoy metadata from NOAA’s National Data Buoy Center: [https://www.ndbc.noaa.gov/](https://www.ndbc.noaa.gov/)
 - Tides from NOAA CO-OPS; sunset from sunrise-sunset.org
 
 ## 🖥 Tech Stack
@@ -50,7 +48,6 @@ NOAA Conditions for 11/21/2025
 - GitHub Actions ⚙️
 - Tweepy (Twitter API) 🐦
 - Requests (for NOAA data) 🌐
-- Stormglass Weather API (for wave height) 🌊
 
 ## 📜 License
 MIT License — use it, fork it, share it!
