@@ -64,15 +64,12 @@ def get_wave_height():
             print("No Stormglass wave data available.")
             return None
 
-        # Each parameter is a list of {"source": ..., "value": ...} entries.
-        wave_entries = hours[0].get('waveHeight', [])
-        wave_height_m = None
-        for entry in wave_entries:
-            if entry.get('source') == 'sg':
-                wave_height_m = entry.get('value')
-                break
-        if wave_height_m is None and wave_entries:
-            wave_height_m = wave_entries[0].get('value')
+        # Each parameter is a dict keyed by source, e.g. {"noaa": 1.34, "sg": 1.32}.
+        wave_by_source = hours[0].get('waveHeight', {})
+        # Prefer Stormglass's blended 'sg' source, fall back to any available source.
+        wave_height_m = wave_by_source.get('sg')
+        if wave_height_m is None and wave_by_source:
+            wave_height_m = next(iter(wave_by_source.values()))
         if wave_height_m is None:
             print("No wave height value in Stormglass response.")
             return None
