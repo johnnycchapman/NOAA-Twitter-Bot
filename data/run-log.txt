@@ -204,3 +204,7 @@ Tweet posted successfully! {'data': {'text': 'NOAA Conditions for 6/29/2026\n�
 2026-06-30T11:00:26Z - run completed
 Tweet posted successfully! {'data': {'id': '2071911734039003191', 'text': 'NOAA Conditions for 6/30/2026\n📍 Station: 41013\n🌊 Wave Height: 3.6 ft\n🌡️  Water Temp: 80.2 °F\n💨 Wind: 15.7 mph from NNE\n⬇️  Low Tides: 2:33am, 2:18pm\n⬆️  High Tides: 8:15am, 8:41pm\n🌅 Sunset: 8:26pm\n#NOAA #WrightsvilleBeach #Wilmington', 'edit_history_tweet_ids': ['2071911734039003191']}}
 ---
+2026-07-01T00:07:16Z - run completed
+Error fetching Stormglass wave data: 'str' object has no attribute 'get'
+Tweet posted successfully! {'data': {'id': '2072109748623999065', 'edit_history_tweet_ids': ['2072109748623999065'], 'text': 'NOAA Conditions for 6/30/2026\n📍 Station: 41013\n🌡️  Water Temp: 80.1 °F\n💨 Wind: 17.9 mph from ENE\n⬇️  Low Tides: 3:08am, 2:56pm\n⬆️  High Tides: 8:54am, 9:18pm\n🌅 Sunset: 8:28pm\n#NOAA #WrightsvilleBeach #Wilmington'}}
+---
